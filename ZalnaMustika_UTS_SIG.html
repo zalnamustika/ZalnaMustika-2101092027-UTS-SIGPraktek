@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="leaflet.css"/>
+    <script src="leaflet.js"></script>
+    <title>Peta Sungai Penuh</title>
+
+    <style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.leaflet-container {
+			height: 400px;
+			width: 600px;
+			max-width: 100%;
+			max-height: 100%;
+		}
+
+	</style> 
+</head>
+<body>
+    <div id='map' style="width: 100%; height: 600px"></div>
+    <button id="getZoomButton" onclick="getCenterAndZoom();">Get Center and Zoom</button>
+    <script src="sample-geojson.js" type="text/javascript"></script>
+
+    <script>
+        
+        const map = L.map('map').setView([-2.0637926670920894, 101.3944025224865], 16);
+
+        const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        const markericon = L.icon({
+            iconUrl: 'images/marker-icon.png',
+            iconSize: [32, 37],
+            iconAnchor: [16, 37],
+            popupAnchor: [0, -28]
+        });
+        var info = L.control();
+
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+
+        info.update = function (props) {
+            this._div.innerHTML = '<h4>Peta Daerah Sungai Penuh</h4>' + (props ?
+                '<b>' + props.name + '</b><br />' + props.density + '%'
+                : 'garis biru menunjukan Jalan Utama,Marker Kuning Menunjukkan Tempat');
+        };
+
+        info.addTo(map);
+
+        function onEachFeature(feature, layer) {
+		let popupContent = `<p>Arsitektur ${feature.geometry.type}, Sungai Penuh</p>`;
+        
+		if (feature.properties && feature.properties.popupContent) {
+			popupContent += feature.properties.popupContent;
+		}
+
+		layer.bindPopup(popupContent);
+	}
+
+
+	const bicycleRentalLayer = L.geoJSON([kerinci], {
+
+		style(feature) {
+			return feature.properties && feature.properties.style;
+		},
+
+		onEachFeature,
+
+		pointToLayer(feature, latlng) {
+			return L.circleMarker(latlng, {
+				radius: 8,
+				fillColor: '#ff7800',
+				color: '#000',
+				weight: 1,
+				opacity: 1,
+				fillOpacity: 0.8
+			});
+		}
+	}).addTo(map);
+
+	const freeBusLayer = L.geoJSON(freeBus, {
+
+		filter(feature, layer) {
+			if (feature.properties) {
+				// If the property "underConstruction" exists and is true, return false (don't render features under construction)
+				return feature.properties.underConstruction !== undefined ? !feature.properties.underConstruction : true;
+			}
+			return false;
+		},
+
+		onEachFeature
+	}).addTo(map);
+
+	const coorsLayer = L.geoJSON(coorsField, {
+
+		pointToLayer(feature, latlng) {
+			return L.marker(latlng, {icon: markericon});
+		},
+
+		onEachFeature
+	}).addTo(map);
+
+	var basemaps = {
+            Topography: L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+                layers: 'TOPO-WMS'
+            }),
+
+            Places: L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+                layers: 'OSM-Overlay-WMS'
+            }),
+
+            Dark: L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+                layers: 'Dark'
+            }),
+
+            'Topography, then places': L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+                layers: 'TOPO-WMS,OSM-Overlay-WMS'
+            }),
+
+            'Places, then topography': L.tileLayer.wms('http://ows.mundialis.de/services/service?', {
+                layers: 'OSM-Overlay-WMS,TOPO-WMS'
+            })
+            };
+
+        L.control.layers(basemaps).addTo(map);
+
+		var myMarker =  L.marker( [-2.0593, 101.3993] );
+        myMarker
+        .bindPopup( "SMA 1 KOTA Sungai Penuh " , {removable: true} )
+        .addTo(map)
+
+		var myMarker =  L.marker( [-2.0641, 101.3936] );
+        myMarker
+        .bindPopup( "Rumah Skit DKT" , {editable: true} )
+        .addTo(map)
+
+		var myMarker =  L.marker( [-2.0635, 101.3965] );
+        myMarker
+        .bindPopup( "Kincay Plaza" , {editable: true} )
+        .addTo(map)
+
+		var myMarker =  L.marker( [-2.0657, 101.3977] );
+        myMarker
+        .bindPopup( "PLN Sungai Penuh" , {editable: true} )
+        .addTo(map)
+		var myMarker =  L.marker( [-2.0591, 101.3909] );
+        myMarker
+        .bindPopup( "RUMAH Sakit Mayjen A.H Thalib" , {editable: true} )
+        .addTo(map)
+
+		var myMarker =  L.marker( [-2.0628, 101.3955] );
+        myMarker
+        .bindPopup( "Pasar Beringin" , {editable: true} )
+        .addTo(map)
+		var myMarker =  L.marker( [-2.0641, 101.3924] );
+        myMarker
+        .bindPopup( "Kantor BNI Sungai Penuh" , {editable: true} )
+        .addTo(map)
+
+
+    </script>
+
+</body>
+</html>
